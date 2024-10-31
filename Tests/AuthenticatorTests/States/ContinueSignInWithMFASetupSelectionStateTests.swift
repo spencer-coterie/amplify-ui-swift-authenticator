@@ -9,14 +9,18 @@ import Amplify
 @testable import Authenticator
 import XCTest
 
-class ConfirmSignInWithCodeStateTests: XCTestCase {
-    private var state: ConfirmSignInWithCodeState!
+class ContinueSignInWithMFASetupSelectionStateTests: XCTestCase {
+    private var state: ContinueSignInWithMFASetupSelectionState!
     private var authenticatorState: MockAuthenticatorState!
     private var authenticationService: MockAuthenticationService!
 
     override func setUp() {
-        state = ConfirmSignInWithCodeState(credentials: Credentials())
         authenticatorState = MockAuthenticatorState()
+        state = ContinueSignInWithMFASetupSelectionState(
+            authenticatorState: authenticatorState,
+            allowedMFATypes: [.sms, .totp, .email])
+        state.selectedMFATypeToSetup = MFAType.email
+
         authenticationService = MockAuthenticationService()
         authenticatorState.authenticationService = authenticationService
         state.configure(with: authenticatorState)
@@ -28,26 +32,26 @@ class ConfirmSignInWithCodeStateTests: XCTestCase {
         authenticationService = nil
     }
 
-    func testConfirmSignIn_withSuccess_shouldSetNextStep() async throws {
-        authenticationService.mockedConfirmSignInResult = .init(nextStep: .done)
+    func testContinueSignIn_withSuccess_shouldSetNextStep() async throws {
+        authenticationService.mockedConfirmSignInResult = .init(nextStep: .continueSignInWithMFASetupSelection([.sms, .totp, .email]))
         authenticationService.mockedCurrentUser = MockAuthenticationService.User(
             username: "username",
             userId: "userId"
         )
 
-        try await state.confirmSignIn()
+        try await state.continueSignIn()
         XCTAssertEqual(authenticationService.confirmSignInCount, 1)
         XCTAssertEqual(authenticatorState.setCurrentStepCount, 1)
         let currentStep = try XCTUnwrap(authenticatorState.setCurrentStepValue)
-        guard case .signedIn(_) = currentStep else {
-            XCTFail("Expected signedIn, was \(currentStep)")
+        guard case .continueSignInWithMFASetupSelection = currentStep else {
+            XCTFail("Expected continueSignInWithMFASetupSelection, was \(currentStep)")
             return
         }
     }
 
-    func testConfirmSignIn_withError_shouldSetErrorMessage() async throws {
+    func testContinueSignIn_withError_shouldSetErrorMessage() async throws {
         do {
-            try await state.confirmSignIn()
+            try await state.continueSignIn()
             XCTFail("Should not succeed")
         } catch {
             guard let authenticatorError = error as? AuthenticatorError else {
@@ -63,10 +67,10 @@ class ConfirmSignInWithCodeStateTests: XCTestCase {
         }
     }
 
-    func testConfirmSignIn_withSuccess_andFailedToSignIn_shouldSetErrorMessage() async throws {
+    func testContinueSignIn_withSuccess_andFailedToSignIn_shouldSetErrorMessage() async throws {
         authenticationService.mockedConfirmSignInResult = .init(nextStep: .done)
         do {
-            try await state.confirmSignIn()
+            try await state.continueSignIn()
             XCTFail("Should not succeed")
         } catch {
             XCTAssertEqual(authenticationService.confirmSignInCount, 1)
@@ -83,34 +87,12 @@ class ConfirmSignInWithCodeStateTests: XCTestCase {
         }
     }
 
-    func testDeliveryDetails_onConfirmSignInWithSMSMFACodeStep_shouldReturnDetails() throws {
-        let destination = DeliveryDestination.sms("123456789")
-        authenticatorState.mockedStep = .confirmSignInWithMFACode(deliveryDetails: .init(destination: destination))
+    func testAllowedMFATypes_onContinueSignInWithMFACodeSelection_shouldReturnDetails() throws {
 
-        let deliveryDetails = try XCTUnwrap(state.deliveryDetails)
-        XCTAssertEqual(deliveryDetails.destination, destination)
+        authenticatorState.mockedStep = .continueSignInWithMFASelection(allowedMFATypes: [.sms, .totp, .email])
+
+        let allowedMFATypes = try XCTUnwrap(state.allowedMFATypes)
+        XCTAssertEqual(allowedMFATypes, [.sms, .totp, .email])
     }
 
-    func testDeliveryDetails_onConfirmSignInWithEmailMFACodeStep_shouldReturnDetails() throws {
-        let destination = DeliveryDestination.email("test@test.com")
-        authenticatorState.mockedStep = .confirmSignInWithMFACode(deliveryDetails: .init(destination: destination))
-
-        let deliveryDetails = try XCTUnwrap(state.deliveryDetails)
-        XCTAssertEqual(deliveryDetails.destination, destination)
-    }
-
-    func testDeliveryDetails_onConfirmSignInWithOTPCodeStep_shouldReturnDetails() throws {
-        let destination = DeliveryDestination.email("test@test.com")
-        authenticatorState.mockedStep = .confirmSignInWithOTP(deliveryDetails: .init(destination: destination))
-
-        let deliveryDetails = try XCTUnwrap(state.deliveryDetails)
-        XCTAssertEqual(deliveryDetails.destination, destination)
-    }
-
-    func testDeliveryDetails_onUnexpectedStep_shouldReturnNil() throws {
-        let destination = DeliveryDestination.sms("123456789")
-        authenticatorState.mockedStep = .confirmSignUp(deliveryDetails: .init(destination: destination))
-
-        XCTAssertNil(state.deliveryDetails)
-    }
 }

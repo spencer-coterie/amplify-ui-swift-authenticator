@@ -7,22 +7,22 @@
 
 import XCTest
 
-final class ResetPasswordViewTests: AuthenticatorBaseTestCase {
+final class ConfirmSignInWithOTPCodeViewTests: AuthenticatorBaseTestCase {
 
-    func testResetPasswordViewWithUsernameAsPhoneNumber() throws {
-        launchApp(with: [
+    func testConfirmSignInWithEmail() throws {
+        launchAppAndLogin(with: [
             .hidesSignUpButton(false),
-            .initialStep(.resetPassword),
-            .userAttributes([ .phoneNumber ])
+            .initialStep(.signIn),
+            .authSignInStep(.confirmSignInWithEmailMFACode)
         ])
         assertSnapshot()
     }
 
-    func testConfirmSignInWithResetPassword() throws {
+    func testConfirmSignInWithSMS() throws {
         launchAppAndLogin(with: [
             .hidesSignUpButton(false),
             .initialStep(.signIn),
-            .authSignInStep(.resetPassword)
+            .authSignInStep(.confirmSignInWithSMSMFACode)
         ])
         assertSnapshot()
     }

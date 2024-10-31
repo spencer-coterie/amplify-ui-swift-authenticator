@@ -8,24 +8,24 @@
 import Amplify
 import SwiftUI
 
-/// Represents the content being displayed when the ``Authenticator`` is in the ``AuthenticatorStep/confirmSignInWithMFACode`` step.
-public struct ConfirmSignInWithMFACodeView<Header: View,
-                                           Footer: View>: View {
+/// Represents the content being displayed when the ``Authenticator`` is in the ``AuthenticatorStep/confirmSignInWithOTP`` step.
+public struct ConfirmSignInWithOTPView<Header: View,
+                                       Footer: View>: View {
     @Environment(\.authenticatorState) private var authenticatorState
     @ObservedObject private var state: ConfirmSignInWithCodeState
     private let content: ConfirmSignInWithCodeView<Header, Footer>
 
-    /// Creates a `ConfirmSignInWithMFACodeView`
+    /// Creates a `ConfirmSignInWithOTPView`
     /// - Parameter state: The ``ConfirmSignInWithCodeState`` that is observed by this view
-    /// - Parameter headerContent: The content displayed above the fields. Defaults to  ``ConfirmSignInWithMFACodeHeader``
-    /// - Parameter footerContent: The content displayed bellow the fields. Defaults to  ``ConfirmSignInWithMFACodeFooter``
+    /// - Parameter headerContent: The content displayed above the fields. Defaults to  ``ConfirmSignInWithOTPHeader``
+    /// - Parameter footerContent: The content displayed bellow the fields. Defaults to  ``ConfirmSignInWithOTPFooter``
     public init(
         state: ConfirmSignInWithCodeState,
         @ViewBuilder headerContent: () -> Header = {
-            ConfirmSignInWithMFACodeHeader()
+            ConfirmSignInWithOTPHeader()
         },
         @ViewBuilder footerContent: () -> Footer = {
-            ConfirmSignInWithMFACodeFooter()
+            ConfirmSignInWithOTPFooter()
         }
     ) {
         self.state = state
@@ -53,18 +53,18 @@ public struct ConfirmSignInWithMFACodeView<Header: View,
     }
 }
 
-/// Default header for the ``ConfirmSignInWithMFACodeView``. It displays the view's title
-public struct ConfirmSignInWithMFACodeHeader: View {
+/// Default header for the ``ConfirmSignInWithOTPView``. It displays the view's title
+public struct ConfirmSignInWithOTPHeader: View {
     public init() {}
     public var body: some View {
         DefaultHeader(
-            title: "authenticator.confirmSignInWithMFACode.title".localized()
+            title: "authenticator.confirmSignInWithOTP.title".localized()
         )
     }
 }
 
-/// Default footer for the ``ConfirmSignInWithMFACodeView``. It displays the "Back to Sign In" button
-public struct ConfirmSignInWithMFACodeFooter: View {
+/// Default footer for the ``ConfirmSignInWithOTPView``. It displays the "Back to Sign In" button
+public struct ConfirmSignInWithOTPFooter: View {
     @Environment(\.authenticatorState) private var authenticatorState
 
     public init() {}

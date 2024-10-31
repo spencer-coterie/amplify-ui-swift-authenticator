@@ -54,13 +54,25 @@ public struct AuthenticatorStep: Equatable {
     /// so they are presented with the  TOTP Setup View
     public static let continueSignInWithTOTPSetup = AuthenticatorStep("continueSignInWithTOTPSetup")
 
-    /// A user has successfully provided valid Sign In credentials but is required to select  a MFA type to continue
+    /// A user has successfully provided valid Sign In credentials but is required to select  a MFA type to continue signing in
     /// so they are presented with the Confirm Sign In with MFA Selection View
     public static let continueSignInWithMFASelection = AuthenticatorStep("continueSignInWithMFASelection")
+
+    /// A user has successfully provided valid Sign In credentials but is required to select  a MFA type to setup before completing sign in
+    /// so they are presented with the Confirm Sign In with MFA Setup Selection View
+    public static let continueSignInWithMFASetupSelection = AuthenticatorStep("continueSignInWithMFASetupSelection")
+
+    /// A user has successfully provided valid Sign In credentials but is required to setup Email MFA before continuing sign in
+    /// so they are presented with the  Email Setup View
+    public static let continueSignInWithEmailMFASetup = AuthenticatorStep("continueSignInWithEmailMFASetup")
 
     /// A user has successfully provided valid Sign In credentials but is required to provide a MFA code,
     /// so they are presented with the Confirm Sign In with MFA Code view
     public static let confirmSignInWithMFACode = AuthenticatorStep("confirmSignInWithMFACode")
+
+    /// A user has successfully provided valid Sign In credentials but is required to provide a OTP,
+    /// so they are presented with the Confirm Sign In with OTP view
+    public static let confirmSignInWithOTP = AuthenticatorStep("confirmSignInWithOTP")
 
     /// A user has successfully provided valid Sign In credentials but is required to change their password,
     /// so they are presented with the Confirm Sign In with New Password view

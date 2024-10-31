@@ -13,7 +13,6 @@ struct ConfirmSignInWithCodeView<Header: View,
     @Environment(\.authenticatorState) private var authenticatorState
     @StateObject private var codeValidator: Validator
     @ObservedObject private var state: ConfirmSignInWithCodeState
-    private let mfaType: AuthenticatorMFAType
     private let headerContent: Header
     private let footerContent: Footer
 
@@ -25,8 +24,7 @@ struct ConfirmSignInWithCodeView<Header: View,
         @ViewBuilder footerContent: () -> Footer = {
             EmptyView()
         },
-        errorTransform: ((AuthError) -> AuthenticatorError?)? = nil,
-        mfaType: AuthenticatorMFAType
+        errorTransform: ((AuthError) -> AuthenticatorError?)? = nil
     ) {
         self.state = state
         self.headerContent = headerContent()
@@ -34,12 +32,30 @@ struct ConfirmSignInWithCodeView<Header: View,
         self._codeValidator = StateObject(wrappedValue: Validator(
             using: FieldValidators.required
         ))
-        self.mfaType = mfaType
+    }
+
+    private var currentMFAType: AuthenticatorFactorType  {
+        switch authenticatorState.step {
+        case .confirmSignInWithMFACode(let deliveryDetails),
+        .confirmSignInWithOTP(let deliveryDetails):
+            switch deliveryDetails?.destination {
+            case .email:
+                return .email
+            case .phone:
+                return .sms
+            default:
+                return .none
+            }
+        case .confirmSignInWithTOTPCode:
+            return .totp
+        default:
+            return .none
+        }
     }
 
     private var textFieldLabel: String {
-        switch mfaType {
-        case .sms, .none:
+        switch currentMFAType {
+        case .sms, .none, .email:
             return "authenticator.field.code.label".localized()
         case .totp:
             return "authenticator.field.totp.code.label".localized()
@@ -47,8 +63,8 @@ struct ConfirmSignInWithCodeView<Header: View,
     }
 
     private var textFieldPlaceholder: String {
-        switch mfaType {
-        case .sms, .none:
+        switch currentMFAType {
+        case .sms, .none, .email:
             return "authenticator.field.code.placeholder".localized()
         case .totp:
             return "authenticator.field.totp.code.placeholder".localized()
@@ -56,8 +72,8 @@ struct ConfirmSignInWithCodeView<Header: View,
     }
 
     private var submitButtonTitle: String {
-        switch mfaType {
-        case .sms, .none:
+        switch currentMFAType {
+        case .sms, .none, .email:
             return "authenticator.confirmSignInWithCode.button.submit".localized()
         case .totp:
             return "authenticator.confirmSignInWithCode.totp.button.submit".localized()

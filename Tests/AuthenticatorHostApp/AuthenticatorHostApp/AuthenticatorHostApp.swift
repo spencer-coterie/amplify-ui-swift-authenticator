@@ -17,13 +17,15 @@ struct AuthenticatorHostApp: App {
     private var hidesSignUpButton = false
     private var initialStep = AuthenticatorInitialStep.signIn
     private var authSignInNextStep = AuthSignInStep.done
+    private var shouldUsePickerForTestingSteps = true
 
     var body: some Scene {
         WindowGroup {
             ContentView(
                 hidesSignUpButton: hidesSignUpButton,
                 initialStep: initialStep,
-                authSignInStep: authSignInNextStep)
+                authSignInStep: authSignInNextStep,
+                shouldUsePickerForTestingSteps: shouldUsePickerForTestingSteps)
         }
     }
 
@@ -55,6 +57,9 @@ struct AuthenticatorHostApp: App {
         var arguments: [ProcessArgument] = []
         for (index, argument) in uiTestArguments.enumerated() {
             if argument.isEqual(UITestKeyKey) {
+                // If no UI tests arguments is present,
+                // that means we can show the picker for testing.
+                shouldUsePickerForTestingSteps = false
                 arguments = try! JSONDecoder().decode([ProcessArgument].self, from: uiTestArguments[index + 1].data(using: .utf8)!)
                 break
             }
@@ -67,7 +72,7 @@ struct AuthenticatorHostApp: App {
     private func getMockedNextStepResult(from authUITestSignInStep: AuthUITestSignInStep) -> AuthSignInStep {
         switch authUITestSignInStep {
         case .confirmSignInWithSMSMFACode:
-            return .confirmSignInWithSMSMFACode(.init(destination: .email("testEmail@test.com")), nil)
+            return .confirmSignInWithSMSMFACode(.init(destination: .email("111-222-3333")), nil)
         case .confirmSignInWithCustomChallenge:
             return .confirmSignInWithCustomChallenge(nil)
         case .confirmSignInWithNewPassword:
@@ -77,7 +82,13 @@ struct AuthenticatorHostApp: App {
         case .continueSignInWithTOTPSetup:
             return .continueSignInWithTOTPSetup(.init(sharedSecret: "secret", username: "username"))
         case .continueSignInWithMFASelection:
-            return .continueSignInWithMFASelection([.totp, .sms])
+            return .continueSignInWithMFASelection([.totp, .sms, .email])
+        case .continueSignInWithMFASetupSelection:
+            return .continueSignInWithMFASetupSelection([.totp, .email])
+        case .continueSignInWithEmailMFASetup:
+            return .continueSignInWithEmailMFASetup
+        case .confirmSignInWithEmailMFACode:
+            return .confirmSignInWithOTP(.init(destination: .email("test@amazon.com")))
         case .resetPassword:
             return .resetPassword(nil)
         case .confirmSignUp:
