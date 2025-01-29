@@ -76,7 +76,7 @@ public class AuthenticatorState: ObservableObject, AuthenticatorStateProtocol {
         }
     }
 
-    func reloadState(initialStep: AuthenticatorInitialStep) async {
+    public func reloadState(initialStep: AuthenticatorInitialStep) async {
         if case .error(let error) = step {
             log.error(error)
             log.error("Cannot reload state, the Authenticator is in error state.")
