@@ -14,6 +14,7 @@ protocol AuthenticatorStateProtocol {
     var step: Step { get }
     func setCurrentStep(_ step: Step)
     func move(to initialStep: AuthenticatorInitialStep)
+    func reloadState(initialStep: AuthenticatorInitialStep) async
 }
 
 extension AuthenticatorStateProtocol where Self == EmptyAuthenticatorState {
@@ -28,4 +29,5 @@ struct EmptyAuthenticatorState: AuthenticatorStateProtocol {
     var step: Step = .loading
     func setCurrentStep(_ step: Step) {}
     func move(to initialStep: AuthenticatorInitialStep) {}
+    func reloadState(initialStep: AuthenticatorInitialStep) async {}
 }
