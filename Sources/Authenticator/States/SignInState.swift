@@ -55,6 +55,10 @@ public class SignInState: AuthenticatorBaseState {
     public func move(to initialStep: AuthenticatorInitialStep) {
         authenticatorState.move(to: initialStep)
     }
+
+    public func reloadState(initialStep: AuthenticatorInitialStep) {
+        authenticatorState.reloadState(initialStep)
+    }
 }
 
 extension SignInState {
