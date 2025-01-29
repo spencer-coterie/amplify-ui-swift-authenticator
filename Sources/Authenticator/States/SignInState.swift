@@ -56,8 +56,8 @@ public class SignInState: AuthenticatorBaseState {
         authenticatorState.move(to: initialStep)
     }
 
-    public func reloadState(initialStep: AuthenticatorInitialStep) {
-        authenticatorState.reloadState(initialStep)
+    public func reloadState(initialStep: AuthenticatorInitialStep) async {
+        authenticatorState.reloadState(initialStep: initialStep)
     }
 }
 
